@@ -79,7 +79,7 @@ private:
     }
 
 private:
-    static constexpr reg_t STACK_PTR = 0x600000000;
+    static constexpr reg_t STACK_PTR = 0x100000;
     size_t n_stack_pages_;
 
     Hart *hart_ {nullptr};
