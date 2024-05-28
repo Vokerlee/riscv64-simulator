@@ -17,6 +17,8 @@ namespace rvsim {
 class Simulator {
 public:
     static constexpr size_t DEFAULT_STACK_PAGES_NUM = 1 << 5;
+    static constexpr reg_t STACK_PTR = 0x100000;
+    static constexpr reg_t TEXT_SECTION_PTR = 0x10000; // in case when elf file is not execuatable
 
 public:
     NO_COPY_SEMANTIC(Simulator);
@@ -79,7 +81,6 @@ private:
     }
 
 private:
-    static constexpr reg_t STACK_PTR = 0x100000;
     size_t n_stack_pages_;
 
     Hart *hart_ {nullptr};
