@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 
 add_library (
-    Cosim cosim.cpp
+    Cosim SHARED cosim.cpp
 )
 
 target_include_directories(Cosim PUBLIC ${SIMULATOR_ROOT})

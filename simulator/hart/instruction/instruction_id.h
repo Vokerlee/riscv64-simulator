@@ -215,8 +215,11 @@ enum class InstructionId
     FMSUB_Q     = 195,
     FNMSUB_Q    = 196,
     FNMADD_Q    = 197,
-    BB_END      = 198,
-    PSEUDO      = 199,
+    GRAND       = 198,
+    GFLUSH      = 199,
+    GFRAME      = 200,
+    BB_END      = 201,
+    PSEUDO      = 202,
 };
 
 // clang-format on

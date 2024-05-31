@@ -5,9 +5,11 @@
  * Written by Glaz Roman (Vokerlee)
  */
 
+#include "common/config.h"
 #include "common/utils/bit_ops.h"
 #include "common/macros.h"
 #include "hart/exception.h"
+#include "hart/graphics.h"
 
 #include <err.h>
 #include <sysexits.h>
@@ -1995,6 +1997,31 @@ ALWAYS_INLINE Exception FNMADD_Q(Hart *hart, const Instruction &instr)
     (void)hart;
     (void)instr;
     std::cerr << "function iexec::FNMADD_Q(Hart *hart, const Instruction &instr) is not implemented yet!" << std::endl;
+
+    return Exception::NONE;
+}
+
+ALWAYS_INLINE Exception GRAND(Hart *hart, const Instruction &instr)
+{
+    hart->SetGPR(instr.rd, graphics::rand(hart->GetGPR(instr.rs1)));
+    hart->SetPCTarget(hart->GetPC() + sizeof(instr_size_t));
+
+    return Exception::NONE;
+}
+
+ALWAYS_INLINE Exception GFLUSH(Hart *hart, const Instruction &instr)
+{
+    (void)instr;
+    graphics::flush();
+    hart->SetPCTarget(hart->GetPC() + sizeof(instr_size_t));
+
+    return Exception::NONE;
+}
+
+ALWAYS_INLINE Exception GFRAME(Hart *hart, const Instruction &instr)
+{
+    hart->SetGPR(instr.rd, reinterpret_cast<reg_t>(graphics::get_init_frame()));
+    hart->SetPCTarget(hart->GetPC() + sizeof(instr_size_t));
 
     return Exception::NONE;
 }

@@ -10,6 +10,7 @@
 #include "hart/csr.h"
 #include "hart/exception.h"
 #include "hart/basic_block_manager.h"
+#include "hart/graphics.h"
 
 #include <functional>
 #include <optional>
@@ -125,6 +126,12 @@ public:
         static_assert((sizeof(ValueType) == sizeof(byte_t)) || sizeof(ValueType) == sizeof(hword_t) ||
                       (sizeof(ValueType) == sizeof(word_t)) || sizeof(ValueType) == sizeof(dword_t));
 
+        if (graphics::is_init_frame(reinterpret_cast<uint8_t *>(src.value))) {
+            vaddr_t delta_addr = graphics::get_prev_frame() - graphics::get_init_frame();
+            std::memcpy(value, reinterpret_cast<uint8_t *>(src.value + delta_addr.value), sizeof(ValueType));
+            return Exception::NONE;
+        }
+
         if ((src & (sizeof(ValueType) - 1)) != 0) {
             return Exception::MMU_ADDRESS_MISALIGNED;
         }
@@ -160,6 +167,12 @@ public:
     {
         static_assert((sizeof(ValueType) == sizeof(byte_t)) || sizeof(ValueType) == sizeof(hword_t) ||
                       (sizeof(ValueType) == sizeof(word_t)) || sizeof(ValueType) == sizeof(dword_t));
+
+        if (graphics::is_init_frame(reinterpret_cast<uint8_t *>(dst.value))) {
+            vaddr_t delta_addr = graphics::get_curr_frame() - graphics::get_init_frame();
+            std::memcpy(reinterpret_cast<uint8_t *>(dst.value + delta_addr.value), &value, sizeof(ValueType));
+            return Exception::NONE;
+        }
 
         if ((dst & (sizeof(ValueType) - 1)) != 0) {
             return Exception::MMU_ADDRESS_MISALIGNED;

@@ -78,6 +78,39 @@ void ElfLoader::LoadElf(const Simulator &sim, Hart *hart)
     std::cerr << "[DEBUG] [ELF] Amount of elf segments = " << segments_count << std::endl;
 #endif
 
+    if (segments_count == 0) { // object not linked file
+        Elf_Scn *scn = nullptr;
+        size_t section_str_table = -1;
+
+        if (elf_getshdrstrndx(elf_, &section_str_table) != 0)
+            errx(EX_DATAERR, "elf_getshdrstrndx() failed: %s.", elf_errmsg(-1));
+
+        while ((scn = elf_nextscn(elf_, scn)) != nullptr) {
+            GElf_Shdr curr_section_header;
+            if (gelf_getshdr(scn, &curr_section_header) == nullptr)
+                errx(EX_DATAERR, "gelf_getshdr() result is nullptr: %s.", elf_errmsg(-1));
+
+            bool is_text_section =
+                !strcmp(elf_strptr(elf_, section_str_table, curr_section_header.sh_name), ".text");
+
+            if (is_text_section) {
+                Elf64_Xword section_elf_size = curr_section_header.sh_size;
+                Elf64_Word section_offset = curr_section_header.sh_offset;
+
+                sim.MapVirtualRange(Simulator::TEXT_SECTION_PTR,
+                                    Simulator::TEXT_SECTION_PTR + section_elf_size, PF_U | PF_X | PF_R);
+                Exception exception =
+                    hart->StoreToMemory(Simulator::TEXT_SECTION_PTR, elf_buffer_ + section_offset, section_elf_size, PF_U | PF_X | PF_R);
+                if (exception != Exception::NONE) {
+                    errx(EX_SOFTWARE,
+                        "Exception while loading elf to virtual memory"); // TODO: add adequate exception handling
+                }
+
+                elf_entry_ = Simulator::TEXT_SECTION_PTR;
+            }
+        }
+    }
+
     for (size_t i = 0; i < segments_count; ++i) {
         // Get next header
         GElf_Phdr curr_segment_header;
