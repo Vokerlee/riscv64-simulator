@@ -1,4 +1,5 @@
 #include "hart/hart.h"
+#include "hart/graphics.h"
 #include "simulator/simulator.h"
 #include "memory/memory_controller.h"
 #include "argparser/parser.h"
@@ -20,6 +21,8 @@ int Main(int argc, char *argv[])
 
     sim.LoadElfFile(parser.GetElfFileName());
 
+    graphics::initialize();
+
     if (parser.GetPlugins().empty()) {
         hart.Interpret();
     } else {
@@ -28,6 +31,8 @@ int Main(int argc, char *argv[])
         hart.SetPluginHandler(&plugin_handler);
         hart.InterpretWithPlugins();
     }
+
+    graphics::close();
 
     return EXIT_SUCCESS;
 }

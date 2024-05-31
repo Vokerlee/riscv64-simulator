@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(RISCV-SIMULATOR)
 
+find_package(SDL2 REQUIRED)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -33,6 +35,7 @@ target_link_libraries(simulator_static PUBLIC
     common_impl
     plugin_impl dl
     cosim_impl
+    ${SDL2_LIBRARIES}
 )
 
 # --------------------------clang-format--------------------------------------

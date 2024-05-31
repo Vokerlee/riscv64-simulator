@@ -157,6 +157,55 @@ void Hart::DecodeInstruction(Instruction *instr, instr_size_t raw_instr)
         return;
     }
 
+    if (var_bits_0 == 127) {
+        word_t var_bits_1 = bitops::GetBits<31, 20>(raw_instr);
+        if (var_bits_1 == 7) {
+            instr->id = InstructionId::GRAND;
+
+            instr->rd |= (bitops::GetBits<11, 7>(raw_instr));
+            if (instr->rd == 0) {
+                instr->rd = SINK_REG_IDX;
+            }
+
+            instr->rs1 |= (bitops::GetBits<19, 15>(raw_instr));
+
+#ifdef DEBUG_HART
+            std::cerr << "[DEBUG] [DECODE] " << std::hex << "GRAND: 0x" << raw_instr << std::dec << std::endl;
+#endif // DEBUG_HART
+
+            return;
+        }
+
+        if (var_bits_1 == 15) {
+            instr->id = InstructionId::GFLUSH;
+
+#ifdef DEBUG_HART
+            std::cerr << "[DEBUG] [DECODE] " << std::hex << "GFLUSH: 0x" << raw_instr << std::dec << std::endl;
+#endif // DEBUG_HART
+
+            return;
+        }
+
+        if (var_bits_1 == 31) {
+            instr->id = InstructionId::GFRAME;
+
+            instr->rd |= (bitops::GetBits<11, 7>(raw_instr));
+            if (instr->rd == 0) {
+                instr->rd = SINK_REG_IDX;
+            }
+
+            instr->rs1 |= (bitops::GetBits<19, 15>(raw_instr));
+
+#ifdef DEBUG_HART
+            std::cerr << "[DEBUG] [DECODE] " << std::hex << "GFRAME: 0x" << raw_instr << std::dec << std::endl;
+#endif // DEBUG_HART
+
+            return;
+        }
+
+
+    }
+
     if (var_bits_0 == 111) {
         instr->id = InstructionId::JAL;
 
